@@ -1,4 +1,4 @@
-use <bracket.scad>
+use <HatBracket.scad>
 
 // seat square side length (in)
 seat_bolt_dist = 11;

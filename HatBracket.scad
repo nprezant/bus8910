@@ -1,7 +1,15 @@
 use <Round-Anything/polyround.scad>
 
+function getHatWidth(wFlangeBoth, wCrown, angle, h) =
+    let (wAngle = h/tan(angle))
+    wFlangeBoth + wCrown + wAngle;
+
 // Bracket
-module bracket_core(w_flange, w_crown, w_total, h, t) {
+module HatBracket(w_flange_both, w_crown, angle, h, t, depth, r = 0.25) {
+    
+    w_total = getHatWidth(w_flange_both, w_crown, angle, h);
+    echo(w_total);
+    w_flange = 0.5 * w_flange_both;
 
     x_flange1_start = 0;
     x_flange1_end = w_flange;
@@ -17,10 +25,9 @@ module bracket_core(w_flange, w_crown, w_total, h, t) {
     x_crown_end = x_crown_start + w_crown;
 
     // Try not to distort the angles too much.
-    angle_factor = t * 0.7;
-
-    // Radius stuff
-    r = 0.4;
+    //soh cah toa
+    
+    angle_factor = t;
 
     points = [
         [x_flange1_start, y_flange_inner, r],
@@ -37,9 +44,9 @@ module bracket_core(w_flange, w_crown, w_total, h, t) {
         [x_flange1_end + angle_factor, y_flange_inner, r],
     ];
 
-    translate([0, w_total/2, 0]) {
+    translate([0, depth/2, h]) {
         rotate([-90, 0, 0]) {
-            linear_extrude(height=w_total, center=true, convexity=10, twist=0) {
+            linear_extrude(height=depth, center=true, convexity=10, twist=0) {
                 polygon(polyRound(points, 30));
             }
         }
@@ -67,14 +74,16 @@ module bracket(seat_bolt_dist, base_bolt_dist, t, h, padding, dia, center = fals
 
     w_flange = padding * 2;
     w_crown = base_bolt_dist + padding * 2;
-    w_total = padding + seat_bolt_dist + padding;
+    angle = 90;
+    w_total = getHatWidth(w_flange * 2, w_crown, angle, h);
+    rounding = 0;
 
     transXY = center ? -w_total/2 : 0;
     transZ = center ? h/2 : 0;
 
     translate([transXY, transXY, transZ]) {
         difference() {
-            bracket_core(w_flange, w_crown, w_total, h, t);
+            HatBracket(w_flange*2, w_crown, angle, h, t, w_total, rounding);
             square_pattern(padding, padding, seat_bolt_dist) {
                 bolt_cylinder(dia);
             }
@@ -104,5 +113,5 @@ padding = 0.75;
 // Bolt stuff
 dia = 0.3;
 
-bracket(seat_bolt_dist, base_bolt_dist, t, h, padding, dia, center=true);
+bracket(seat_bolt_dist, base_bolt_dist, t, h, padding, dia, center=false);
 
