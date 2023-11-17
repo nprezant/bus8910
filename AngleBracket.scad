@@ -7,7 +7,7 @@ module AngleBracket(t=0.1, depth=12, w=2, h=2) {
         [t, h],
         [0, h]
     ];
-    translate([0, depth/2, 0])
+    translate([-w/2, 0, -h/2])
         rotate([90, 0, 0])
             linear_extrude(height=depth, center = true) {
                 polygon(points);
@@ -27,4 +27,4 @@ module AngleBracket1x1(depth=12) {
 }
 
 AngleBracket2x2();
-AngleBracket1x1(15);
+AngleBracket1x1();

@@ -3,16 +3,16 @@ use <AngleBracket.scad>
 use <BoxBracket.scad>
 use <SuspensionBox.scad>
 
-module PlacedAngleBracket(depth=12, zrot=0, offset=0, faceup=true, isBig=false) {
+module PlacedAngleBracket(depth=12, zrot=0, outsideEdge=0, faceup=true, isBig=false) {
     yrot = faceup ? 0 : 90;
+    size = isBig ? 2 : 1;
+    offset = outsideEdge < 0 ? outsideEdge + size/2 : outsideEdge - size/2;
     
     xtrans = zrot == 180 || zrot == 0 ? offset : 0;
     ytrans = zrot == 180 || zrot == 0 ? 0      : offset;
-    ztrans = faceup ? 0 : isBig ? 2 : 1;
     
-    translate([xtrans,ytrans,ztrans])
+    translate([xtrans,ytrans,0])
     rotate([0, yrot, zrot])
-    translate([0, -depth/2, 0])
     if (!isBig) {
         AngleBracket1x1(depth=depth);
     } else {
@@ -20,13 +20,15 @@ module PlacedAngleBracket(depth=12, zrot=0, offset=0, faceup=true, isBig=false) 
     }
 }
 
-module PlacedBoxBracket(depth=12, zrot=0, offset=0) {
+module PlacedBoxBracket(depth=12, zrot=0, outsideEdge=0) {
+    size = 1;
+    offset = outsideEdge < 0 ? outsideEdge + size/2 : outsideEdge - size/2;
+
     xtrans = zrot == 180 || zrot == 0 ? offset : 0;
     ytrans = zrot == 180 || zrot == 0 ? 0      : offset;
     
     translate([xtrans,ytrans,0])
     rotate([0, 0, zrot])
-    translate([-0.5, -depth/2, 0])
     BoxBracket1x1(depth);
 }
 
@@ -36,11 +38,11 @@ module BottomAdapter() {
     depth = 13.5; // Depth of the lower attachments
     wUpper = 9.25; // Width of the upper attachments
     
-    PlacedAngleBracket(depth=wLower, zrot=90, offset=-wUpper/2, faceup=true);
-    PlacedAngleBracket(depth=wLower, zrot=-90, offset=wUpper/2, faceup=true);
+    PlacedAngleBracket(depth=wLower, zrot=90, outsideEdge=-wUpper/2, faceup=true);
+    PlacedAngleBracket(depth=wLower, zrot=-90, outsideEdge=wUpper/2, faceup=true);
     
-    PlacedAngleBracket(depth=depth, zrot=0, offset=-wLower/2, faceup=true);
-    PlacedAngleBracket(depth=depth, zrot=180, offset=wLower/2, faceup=true);
+    PlacedAngleBracket(depth=depth, zrot=0, outsideEdge=-wLower/2, faceup=true);
+    PlacedAngleBracket(depth=depth, zrot=180, outsideEdge=wLower/2, faceup=true);
 }
 
 module TopAdapter() {
@@ -50,18 +52,22 @@ module TopAdapter() {
     dUpper = 14; // Depth of the upper attachments
     
     translate([0,1,0]) {
-    PlacedBoxBracket(depth=wUpper, zrot=90, offset=-dLower/2);
-    PlacedBoxBracket(depth=wUpper, zrot=-90, offset=dLower/2);
+        PlacedBoxBracket(depth=wUpper, zrot=90, outsideEdge=-dLower/2);
+        PlacedBoxBracket(depth=wUpper, zrot=-90, outsideEdge=dLower/2);
     }
     
     translate([0,2,0]) {
-    PlacedAngleBracket(depth=dUpper, zrot=0, offset=-wUpper/2, faceup=false);
-    PlacedAngleBracket(depth=dUpper, zrot=180, offset=wUpper/2, faceup=false);
+        PlacedAngleBracket(depth=dUpper, zrot=0, outsideEdge=-wUpper/2, faceup=false);
+        PlacedAngleBracket(depth=dUpper, zrot=180, outsideEdge=wUpper/2, faceup=false);
+        translate([0,0,1]) {
+            PlacedBoxBracket(depth=dUpper, zrot=0, outsideEdge=-wUpper/2);
+            PlacedBoxBracket(depth=dUpper, zrot=180, outsideEdge=wUpper/2);
+        }
     }
-    
 }
 
 color("skyblue", 0.4)
+translate([0,0,-1])
 BottomAdapter();
 
 color("gray", 0.8)
@@ -69,10 +75,10 @@ translate([0,0,0.125])
 SwivelBase();
 
 color("skyblue", 0.4)
-translate([0,0,3.875])
+translate([0,0,5])
 TopAdapter();
 
 color("gray", 0.8)
-translate([0, 0, 7])
+translate([0, 0, 8])
 rotate([180, 0, 0])
 SuspensionBox();
