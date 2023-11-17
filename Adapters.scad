@@ -1,6 +1,7 @@
 use <SwivelBase.scad>
 use <AngleBracket.scad>
 use <BoxBracket.scad>
+use <SuspensionBox.scad>
 
 module PlacedAngleBracket(depth=12, zrot=0, offset=0, faceup=true, isBig=false) {
     yrot = faceup ? 0 : 90;
@@ -31,8 +32,8 @@ module PlacedBoxBracket(depth=12, zrot=0, offset=0) {
 
 module BottomAdapter() {
     
-    wLower = 12; // Width of the lower attachments
-    depth = 14; // Depth of the lower attachments
+    wLower = 12.5; // Width of the lower attachments
+    depth = 13.5; // Depth of the lower attachments
     wUpper = 9.25; // Width of the upper attachments
     
     PlacedAngleBracket(depth=wLower, zrot=90, offset=-wUpper/2, faceup=true);
@@ -70,3 +71,8 @@ SwivelBase();
 color("skyblue", 0.4)
 translate([0,0,3.875])
 TopAdapter();
+
+color("gray", 0.8)
+translate([0, 0, 7])
+rotate([180, 0, 0])
+SuspensionBox();
